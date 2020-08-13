@@ -1,3 +1,0 @@
-'''
-All models for competition
-'''
