@@ -69,7 +69,16 @@ data["Date"]=data["Date"].apply(lambda x: int(x.strftime('%Y%m%d')))
 
 data["Date_year"]=data["Date"].apply(lambda x: int(str(x)[0:4]))
 data["Date_month"]=data["Date"].apply(lambda x: int(str(x)[4:6]))
-data["Date_day"]=data["Date"].apply(lambda x: int(str(x)[6:8]))   
+data["Date_day"]=data["Date"].apply(lambda x: int(str(x)[6:8]))
+
+
+#Drop row's where OPEN = 0
+
+data=data.drop(data[(data["Open"]==0)].index)
+
+data.reset_index(drop=True,inplace=True)
+
+
                      
 # CREATE DUMMIES
 
@@ -90,6 +99,14 @@ data_w_dummies.drop(columns="Date",inplace=True)
 heatmap_f(data_w_dummies)
 
 
+#Drop row's where OPEN = 0
+
+#data_w_dummies=data_w_dummies.drop(data[(data["Open"]==0)].index)
+
+
+
+#data_w_dummies.reset_index(drop=True,inplace=True)
+
 
 
 
@@ -101,7 +118,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_s
 
 
 # Check Numerical scale and standardize the numerical values
-data_w_dummies.boxplot()
+#data_w_dummies.boxplot()
 
 sc=StandardScaler()
 
@@ -146,5 +163,46 @@ def regression_score(model=model, y_test=y_test, X_test=X_test):
 regression_score(X_test=X_test_scaled,y_test=y_test_scaled)
 
 
+
 data_w_dummies.to_csv("cleaning_w_dummies.csv",index=False)
 
+
+# Random Forest
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+
+X_train=X_train_scaled
+y_train=y_train_scaled
+
+X_test=X_test_scaled
+y_test=y_test_scaled
+
+RF_model = RandomForestRegressor(n_jobs=6, random_state=0)
+RF_model.fit(X_train, y_train)
+
+#predictions: test data
+y_pred = RF_model.predict(X_test)
+
+print('\nRandom Forest report')
+#Scores
+print('Train score')
+print(RF_model.score(X_train, y_train))
+print('Test score')
+print(RF_model.score(X_test, y_test))
+print('-------------------------------------------------------')
+
+# MAE
+print('Mean absolute error')
+print(mean_absolute_error(y_test, y_pred))
+print('-------------------------------------------------------')
+
+# MSE
+print('Mean squared error')
+print(mean_squared_error(y_test, y_pred))
+print('-------------------------------------------------------')
+
+# R-squared
+print('R-squared')
+print(r2_score(y_test, y_pred))
