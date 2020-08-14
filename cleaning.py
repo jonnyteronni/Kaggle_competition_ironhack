@@ -23,7 +23,7 @@ from sklearn.metrics import r2_score, mean_absolute_error
 #Data exploration
 
 
-data = pd.read_csv("DATA HERE!!!!.csv") ####### Insert file path
+data = pd.read_csv("train.csv") ####### Insert file path
 
 print(data.info())
 
@@ -179,4 +179,14 @@ regression_score()
 n_samples = X.shape[0]
 cv = ShuffleSplit(n_splits=5, test_size=0.3, random_state=0)
 cross_val_score(clf, X, y, cv=cv)
-array([0.977..., 0.977..., 1.  ..., 0.955..., 1.        ])""""""
+array([0.977..., 0.977..., 1.  ..., 0.955..., 1.        ])"""
+
+
+#CREATE A DATA SET
+
+sample=data.sample(n=20000)
+
+#list(data2.index)-list(sample2.index)
+
+data2=data.drop(index=sample.index)
+data3
