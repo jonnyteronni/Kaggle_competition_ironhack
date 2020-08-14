@@ -244,9 +244,9 @@ max_features = ['auto', 'sqrt']
 max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
 max_depth.append(None)
 # Minimum number of samples required to split a node
-#min_samples_split = [2, 5, 10]
+min_samples_split = [2, 5, 10]
 # Minimum number of samples required at each leaf node
-#min_samples_leaf = [1, 2, 4]
+min_samples_leaf = [1, 2, 4]
 # Method of selecting samples for training each tree
 bootstrap = [True, False]
 # Create the random grid
