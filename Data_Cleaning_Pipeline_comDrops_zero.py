@@ -92,7 +92,17 @@ def clean_data(csv,csv_pedro):
     data_w_dummies=pd.get_dummies(data)
     
     data_w_dummies_pedro=pd.get_dummies(data_pedro)
-
+    
+    #Drop row's where OPEN = 0
+    #THIS DROP DID NOT WORK
+    # data_w_dummies=data_w_dummies.drop(data[(data["Open"]==0)].index)
+    # data_w_dummies.reset_index(drop=True,inplace=True)
+    
+    # data_w_dummies_pedro=data_w_dummies_pedro.drop(data_pedro[(data_pedro["Open"]==0)].index)
+    # data_w_dummies_pedro.reset_index(drop=True,inplace=True)
+    
+    
+    
     
     data_w_dummies=data_w_dummies[['Store_ID', 'Day_of_week', 'Date', 'Nb_customers_on_day',
            'Open', 'Promotion', 'School_holiday', 'Date_year',
@@ -123,10 +133,7 @@ def clean_data(csv,csv_pedro):
     # heatmap_f(data_w_dummies)
     
     
-    #Drop row's where OPEN = 0
-    #THIS DROP DID NOT WORK
-    #data_w_dummies=data_w_dummies.drop(data[(data["Open"]==0)].index)
-    #data_w_dummies.reset_index(drop=True,inplace=True)
+ 
     
     #Create SPLIT
     
@@ -361,13 +368,21 @@ print((time()-start))
 # #PEDRO's VALIDATION 
 # X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled, X, y, X_test_pedro,sc,y_test = clean_data('train.csv','validation_features.csv')
 
-predict = grid_search.predict(X_test_scaled)
+predict = grid_search.predict(X_test)
 
 predict = sc.inverse_transform(predict)
 
+y_test = sc.inverse_transform(y_test)
+
 # r2_score(pd.Series(y_test),pd.Series(predict))
-r2_score(y_test,predict)
+print(r2_score(y_test,predict))
 
 print(predict)
 
-# Resultado = pd.Series(predict).to_csv("Winter_Sweat_prediction.csv",index=False)
+predict_pedro = grid_search.predict(X_test_pedro)
+
+predict_pedro = sc.inverse_transform(predict_pedro)
+
+
+
+Resultado = pd.Series(predict_pedro).to_csv("Winter_Sweat_prediction2.csv",index=False)

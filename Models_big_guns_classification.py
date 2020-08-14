@@ -8,15 +8,18 @@ import pandas as pd
 # Get dataset
 from sklearn.datasets import load_breast_cancer
 
-
+df=pd.read_csv('Fraud_DB.csv')
 # df = pd.DataFrame(import_data())
 
 # Split of data set
 
 #fit
-# target = df['target']
-# features = df.drop('target',axis=1)
-features, target = load_breast_cancer(return_X_y=True)
+target = df['isFraud']
+features = df.drop('isFraud',axis=1)
+features=features.select_dtypes(exclude=['object'])
+
+
+# features, target = load_breast_cancer(return_X_y=True)
 
 from sklearn.model_selection import train_test_split
 
@@ -35,7 +38,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score, classification_rep
 
 
 
-RF_model = RandomForestClassifier(n_jobs=2, random_state=0)
+RF_model = RandomForestClassifier(n_jobs=3, random_state=0)
 RF_model.fit(X_train, y_train)
 
 #predictions: test data
@@ -88,7 +91,7 @@ ADA.fit(X_train, y_train)
 #predictions: test data
 y_pred = ADA.predict(X_test)
 
-print('\n\nDecision Tree report')
+print('\n\nADA boosting report')
 #Scores
 print('Train score')
 print(ADA.score(X_train, y_train))

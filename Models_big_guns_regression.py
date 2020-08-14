@@ -1,23 +1,27 @@
 '''
 Models preparation for competition
 '''
+import os
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+
 
 #from cleaning.py import import_data
 import pandas as pd
 
 # Get dataset
-from sklearn.datasets import load_boston
+# from sklearn.datasets import load_boston
 
 
 
+df=pd.read_csv('Fraud_DB.csv')
 # df = pd.DataFrame(import_data())
 
 # Split of data set
 
 #fit
-# target = df['target']
-# features = df.drop('target',axis=1)
-features, target = load_boston(return_X_y=True)
+target = df['isFraud']
+features = df.drop('isFraud',axis=1)
+features=features.select_dtypes(exclude=['object'])
 
 from sklearn.model_selection import train_test_split
 
