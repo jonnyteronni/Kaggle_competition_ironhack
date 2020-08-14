@@ -17,6 +17,9 @@ from sklearn.metrics import confusion_matrix, accuracy_score, classification_rep
 
 from sklearn.metrics import r2_score, mean_absolute_error
 
+from datetime import datetime
+
+
 
 data = pd.read_csv("train.csv") ####### Insert file path
 
@@ -62,35 +65,86 @@ def heatmap_f(dataframe):
 
 data["Date"]=data["Date"].apply(pd.to_datetime)
 
+data["Date"]=data["Date"].apply(lambda x: int(x.strftime('%Y%m%d')))
+
+data["Date_year"]=data["Date"].apply(lambda x: int(str(x)[0:4]))
+data["Date_month"]=data["Date"].apply(lambda x: int(str(x)[4:6]))
+data["Date_day"]=data["Date"].apply(lambda x: int(str(x)[6:8]))   
+                     
 # CREATE DUMMIES
 
 data_w_dummies=pd.get_dummies(data)
 
-data_w_dummies.drop(columns="State_holiday",inplace=True)
+#data_w_dummies.drop(columns="State_holiday",inplace=True)
 
-data_w_dummies.columns=['Unnamed: 0', 'Store_ID', 'Day_of_week', 'Date', 'Nb_customers_on_day',
-       'Open', 'Promotion', 'School_holiday', 'State_holiday_0',
-       'State_holiday_a', 'State_holiday_b', 'State_holiday_c', 'Sales']
+data_w_dummies=data_w_dummies[['Unnamed: 0', 'Store_ID', 'Day_of_week', 'Date', 'Nb_customers_on_day',
+       'Open', 'Promotion', 'School_holiday', 'Date_year',
+       'Date_month', 'Date_day', 'State_holiday_0', 'State_holiday_a',
+       'State_holiday_b', 'State_holiday_c', 'Sales']]
+
+heatmap_f(data_w_dummies)
+
+#1st Drop
+data_w_dummies.drop(columns="Date",inplace=True)
 
 heatmap_f(data_w_dummies)
 
 
+
+
+
 #Create SPLIT
 
-X = data_w_dummies.drop(columns=['TARGET COLLUMN'],axis=1)
-y = data_w_dummies['TARGET COLLUMN']
+X = data_w_dummies.drop(columns=['Sales'],axis=1)
+y = data_w_dummies['Sales']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=0)
 
 
-
-
-
 # Check Numerical scale and standardize the numerical values
-data.boxplot()
+data_w_dummies.boxplot()
 
 sc=StandardScaler()
 
-X_train=pd.DataFrame(sc.fit_transform(X_train))
 
-X_test=pd.DataFrame(sc.transform(X_test))
+X_train_scaled=pd.DataFrame(sc.fit_transform(X_train))
+X_train_scaled.columns= X_train.columns
+
+X_train_scaled=pd.concat([X_train_scaled[['Unnamed: 0', 'Store_ID', 'Day_of_week', 'Nb_customers_on_day',
+       'Open', 'Promotion', 'School_holiday', 'Date_year', 'Date_month','Date_day']],X_train[['State_holiday_0',
+       'State_holiday_a', 'State_holiday_b', 'State_holiday_c']].reset_index(drop=True)],axis=1)
+
+
+X_test_scaled=pd.DataFrame(sc.transform(X_test))
+X_test_scaled.columns=X_test.columns
+
+X_test_scaled=pd.concat([X_test_scaled[['Unnamed: 0', 'Store_ID', 'Day_of_week', 'Nb_customers_on_day',
+       'Open', 'Promotion', 'School_holiday', 'Date_year', 'Date_month','Date_day']],X_test[['State_holiday_0',
+       'State_holiday_a', 'State_holiday_b', 'State_holiday_c']].reset_index(drop=True)],axis=1)
+
+y_train_scaled=sc.fit_transform(pd.DataFrame(y_train))
+y_test_scaled=sc.transform(pd.DataFrame(y_test))
+
+
+
+#Linear Regression Model - REGRESSION exercise
+model=LinearRegression()
+model.fit(X_train_scaled,y_train_scaled)
+
+# Function to score a REGRESSION exercise
+def regression_score(model=model, y_test=y_test, X_test=X_test):
+    y_pred=model.predict(X_test)
+    coefficient_of_dermination = r2_score(y_test,y_pred)
+    meanabsoluterror=mean_absolute_error(y_test,y_pred)
+    
+    print("coefficient_of_dermination (R2), best score is 1.0 ")
+    print(coefficient_of_dermination)
+    print('-----------------------------------------------')
+    print("Mean Absolute Error (MAE) - best score is 0.0")
+    print(meanabsoluterror)
+    return
+
+regression_score(X_test=X_test_scaled,y_test=y_test_scaled)
+
+
+data_w_dummies.to_csv("cleaning_w_dummies.csv",index=False)
 
